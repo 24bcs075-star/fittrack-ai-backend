@@ -1,0 +1,623 @@
+{
+  "info": {
+    "_postman_id": "fittrack-ai-2026",
+    "name": "FitTrack AI API",
+    "description": "Complete Postman collection for FitTrack AI — AI-powered fitness tracking platform.\n\nBase URL: http://localhost:5000\n\n## Authentication\nAll protected endpoints require a Bearer JWT token in the Authorization header.\nAfter logging in, the token is automatically saved to the `token` environment variable.\n\n## Environment Variables\n- `baseUrl` — http://localhost:5000\n- `token` — JWT token (auto-set after login)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:5000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "workoutId",
+      "value": "",
+      "type": "string"
+    }
+  ],
+  "item": [
+    {
+      "name": "🏥 Health",
+      "item": [
+        {
+          "name": "Health Check",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            },
+            "description": "Check if the API server is running."
+          },
+          "response": []
+        },
+        {
+          "name": "Root Info",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/",
+              "host": ["{{baseUrl}}"],
+              "path": [""]
+            },
+            "description": "Get basic API information."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "Register User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) {",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "    console.log('Token saved:', json.token.substring(0, 20) + '...');",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Register a new user account. Token is automatically saved to the `token` variable."
+          },
+          "response": []
+        },
+        {
+          "name": "Login User",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.token) {",
+                  "    pm.collectionVariables.set('token', json.token);",
+                  "    console.log('Token saved:', json.token.substring(0, 20) + '...');",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/login",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "login"]
+            },
+            "description": "Login and receive a JWT token. Token is automatically saved to the `token` variable."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Profile",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "profile"]
+            },
+            "description": "Get the authenticated user's profile. Requires Bearer token."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Profile",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Updated\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/profile",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "profile"]
+            },
+            "description": "Update authenticated user's profile (name, email, or password)."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "💪 Workouts",
+      "item": [
+        {
+          "name": "Create Workout",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "  const json = pm.response.json();",
+                  "  if (json.data && json.data._id) {",
+                  "    pm.collectionVariables.set('workoutId', json.data._id);",
+                  "    console.log('Workout ID saved:', json.data._id);",
+                  "  }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workoutName\": \"Morning Run\",\n  \"category\": \"Cardio\",\n  \"duration\": 30,\n  \"caloriesBurned\": 300,\n  \"workoutDate\": \"2026-09-28\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/workouts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workouts"]
+            },
+            "description": "Create a new workout for the authenticated user. Workout ID is automatically saved."
+          },
+          "response": []
+        },
+        {
+          "name": "Get All Workouts",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/workouts?page=1&limit=20",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workouts"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            },
+            "description": "Get all workouts for the authenticated user with pagination."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Workout Stats",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/workouts/stats",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workouts", "stats"]
+            },
+            "description": "Get comprehensive workout statistics using MongoDB aggregation."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Workouts — by Name",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/workouts/search?name=run",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workouts", "search"],
+              "query": [
+                {
+                  "key": "name",
+                  "value": "run"
+                }
+              ]
+            },
+            "description": "Search workouts by name (case-insensitive partial match)."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Workouts — by Category",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/workouts/search?category=Cardio",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workouts", "search"],
+              "query": [
+                {
+                  "key": "category",
+                  "value": "Cardio"
+                }
+              ]
+            },
+            "description": "Search workouts by category."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Workouts — by Date",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/workouts/search?date=2026-09-28",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workouts", "search"],
+              "query": [
+                {
+                  "key": "date",
+                  "value": "2026-09-28"
+                }
+              ]
+            },
+            "description": "Search workouts logged on a specific date."
+          },
+          "response": []
+        },
+        {
+          "name": "Search Workouts — by Date Range",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/workouts/search?from=2026-09-01&to=2026-09-28",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workouts", "search"],
+              "query": [
+                {
+                  "key": "from",
+                  "value": "2026-09-01"
+                },
+                {
+                  "key": "to",
+                  "value": "2026-09-28"
+                }
+              ]
+            },
+            "description": "Search workouts within a date range."
+          },
+          "response": []
+        },
+        {
+          "name": "Get Single Workout",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/workouts/{{workoutId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workouts", "{{workoutId}}"]
+            },
+            "description": "Get a single workout by ID. Uses workoutId variable auto-set after Create Workout."
+          },
+          "response": []
+        },
+        {
+          "name": "Update Workout",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workoutName\": \"Evening Run\",\n  \"duration\": 45,\n  \"caloriesBurned\": 400\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/workouts/{{workoutId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workouts", "{{workoutId}}"]
+            },
+            "description": "Update a workout by ID. Uses workoutId variable."
+          },
+          "response": []
+        },
+        {
+          "name": "Delete Workout",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/workouts/{{workoutId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workouts", "{{workoutId}}"]
+            },
+            "description": "Delete a workout by ID. Uses workoutId variable."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🤖 AI Features",
+      "item": [
+        {
+          "name": "AI Workout Recommendation",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"age\": 25,\n  \"fitnessGoal\": \"Build muscle\",\n  \"experienceLevel\": \"Beginner\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/recommendation",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "recommendation"]
+            },
+            "description": "Get a personalized AI workout recommendation.\n\nfitnessGoal options: Weight Loss, Build Muscle, Improve Endurance, General Fitness, Strength, Flexibility\n\nexperienceLevel options: Beginner, Intermediate, Advanced\n\nRequires GEMINI_API_KEY to be configured in .env"
+          },
+          "response": []
+        },
+        {
+          "name": "AI Fitness Insights",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"totalWorkouts\": 20,\n  \"averageWorkoutDuration\": 35,\n  \"totalCaloriesBurned\": 5000\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/ai/insights",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "ai", "insights"]
+            },
+            "description": "Get AI-powered fitness insights based on workout statistics.\n\nRequires GEMINI_API_KEY to be configured in .env"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🔒 Security Tests",
+      "item": [
+        {
+          "name": "Access Protected Route (No Token)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/workouts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workouts"]
+            },
+            "description": "Should return 401 Unauthorized — no token provided."
+          },
+          "response": []
+        },
+        {
+          "name": "Access Protected Route (Invalid Token)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer INVALID_TOKEN_HERE"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/workouts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workouts"]
+            },
+            "description": "Should return 401 Unauthorized — invalid token."
+          },
+          "response": []
+        },
+        {
+          "name": "Register Duplicate Email (Expect 409)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\",\n  \"password\": \"Password123\"\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/auth/register",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "auth", "register"]
+            },
+            "description": "Should return 409 Conflict — email already registered."
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Workout ID (Expect 400)",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/workouts/not-a-valid-id",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workouts", "not-a-valid-id"]
+            },
+            "description": "Should return 400 Bad Request — invalid MongoDB ObjectId."
+          },
+          "response": []
+        },
+        {
+          "name": "Invalid Workout Values (Expect 400)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"workoutName\": \"Bad Workout\",\n  \"category\": \"Cardio\",\n  \"duration\": -10,\n  \"caloriesBurned\": -500\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/workouts",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "workouts"]
+            },
+            "description": "Should return 400 Bad Request — negative duration and calories."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}
